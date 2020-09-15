@@ -1,0 +1,2 @@
+http://github.com/Jagriff/rottenpotatoes-rails-intro
+http://infinite-atoll-59838.herokuapp.com/movies
