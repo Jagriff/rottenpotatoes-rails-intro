@@ -11,25 +11,32 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.all_ratings
+    # on redirect, display using session
+    if (params[:redirect])
+      @sorting = session[:sorting]
+      @checked_ratings = session[:ratings]
+      @movies = Movie.sort_with_ratings(session)
+      return
+    end
 
-    if (!@checked_ratings)                  # check all boxes during first visit
-      @checked_ratings = Hash.new
-      @all_ratings.each do |rating|
-        @checked_ratings[rating] = 1
+    # if first time viewing page, fill session with no rating filters
+    if (!session[:ratings])
+      session[:ratings] = Hash.new
+      Movie.all_ratings.each do |rating|
+        session[:ratings][rating] = 1
       end
     end
 
-    if (params[:sorting])
-      @sorting = params[:sorting]
-      @movies = Movie.sort(@sorting)
-    else
-      if (params[:commit])     # means refresh button was hit for filtering ratings
-        @checked_ratings = params[:ratings]
-        @checked_ratings = Hash.new if !@checked_ratings
-      end
-      @movies = Movie.with_ratings(@checked_ratings.keys)
-    end
+    # if a column was just set to be sorted on, then update session
+    session[:sorting] = params[:sorting] if params[:sorting]
+
+    # if we have new filters that are non-empty, then update session
+    session[:ratings] = params[:ratings] if params[:commit] && params[:ratings]
+
+    # redirect to get appropriate URI
+    flash.keep
+    redirect_to movies_path :sorting => session[:sorting], :commit => 1, 
+                            :ratings => session[:ratings], :redirect => 1
   end
 
   def new
