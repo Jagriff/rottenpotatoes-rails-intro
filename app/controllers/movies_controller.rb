@@ -11,11 +11,24 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if params[:sorting]
+    @all_ratings = Movie.all_ratings
+
+    if (!@checked_ratings)                  # check all boxes during first visit
+      @checked_ratings = Hash.new
+      @all_ratings.each do |rating|
+        @checked_ratings[rating] = 1
+      end
+    end
+
+    if (params[:sorting])
       @sorting = params[:sorting]
-      @movies = Movie.all.order(@sorting)
+      @movies = Movie.sort(@sorting)
     else
-      @movies = Movie.all
+      if (params[:commit])     # means refresh button was hit for filtering ratings
+        @checked_ratings = params[:ratings]
+        @checked_ratings = Hash.new if !@checked_ratings
+      end
+      @movies = Movie.with_ratings(@checked_ratings.keys)
     end
   end
 
