@@ -35,8 +35,8 @@ class MoviesController < ApplicationController
 
     # redirect to get appropriate URI
     flash.keep
-    redirect_to movies_path :sorting => session[:sorting], :commit => 1, 
-                            :ratings => session[:ratings], :redirect => 1
+    redirect_to movies_path :redirect => 1, :sorting => session[:sorting],
+                            :ratings => session[:ratings]
   end
 
   def new
